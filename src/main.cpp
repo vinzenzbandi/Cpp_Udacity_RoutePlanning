@@ -31,14 +31,31 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
     return std::move(contents);
 }
 
-void GetUserInput(float &start_x, float &start_y, float &end_x, float &end_y) {
+bool CheckMinMax(float num, float min, float max) {
+    return (num >= min && num <= max);
+}
+
+bool CheckValidInputs(float& i1, float& i2, float& i3, float& i4) {
+    return (CheckMinMax(i1, 0, 100) && CheckMinMax(i2, 0, 100) && CheckMinMax(i3, 0, 100) && CheckMinMax(i4, 0, 100));
+}
+
+void GetUserInput(float& start_x, float& start_y, float& end_x, float& end_y) {
     // get user input for starting and goal coordinates
-    cout << "Enter x and y start coordinates (0..100) separated by a space. Confirm with Enter:";
-    cin >> start_x >> start_y;
-    cout << "Start x: " << start_x << " y: " << start_y << "\n";
-    cout << "Enter xx and y goal coordinates (0..100) separated by a space. Confirm with Enter:";
-    cin >> end_x >> end_y;
-    cout << "Goal x: " << end_x << " y: " << end_y << "\n";
+    while (1) {
+        cout << "Enter x coordinate for start point (0..100). Confirm with Enter:";
+        cin >> start_x;
+        cout << "Enter y coordinate for start point (0..100). Confirm with Enter:";
+        cin >> start_y;
+        cout << "Enter x coordinate for goal point (0..100). Confirm with Enter:";
+        cin >> end_x;
+        cout << "Enter y coordinate for goal point (0..100). Confirm with Enter:";
+        cin >> end_y;
+        cout << "Goal x: " << end_x << " y: " << end_y << "\n";
+        if (CheckValidInputs(start_x, start_y, end_x, end_y))
+            return;
+        else
+            cout << "It seems your values are out or range. \n";
+    }
 }
 
 int main(int argc, const char **argv)
