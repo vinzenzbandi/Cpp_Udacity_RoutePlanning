@@ -37,12 +37,14 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     current_node->FindNeighbors();
     for (auto node : current_node->neighbors) {
-        node->parent = current_node;
-        node->h_value = CalculateHValue(node);
-        node->g_value = current_node->g_value + node->distance(*current_node);
+        if (!node->visited) {
+            node->parent = current_node;
+            node->h_value = CalculateHValue(node);
+            node->g_value = current_node->g_value + node->distance(*current_node);
 
-        open_list.push_back(node);
-        node->visited = true;
+            open_list.push_back(node);
+            node->visited = true;
+        }
     }
 }
 
@@ -53,10 +55,17 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Create a pointer to the node in the list with the lowest sum.
 // - Remove that node from the open_list.
 // - Return the pointer.
+bool CompareNodes(RouteModel::Node* n1, RouteModel::Node* n2) {
+    float f1 = n1->g_value + n1->h_value;
+    float f2 = n2->g_value + n2->h_value;
+    return f1 > f2;
+}
 
 RouteModel::Node *RoutePlanner::NextNode() {
-    RouteModel::Node n;
-    return &n;
+    std::sort(open_list.begin(), open_list.end(), CompareNodes);
+    auto next = open_list.back();
+    open_list.pop_back();
+    return next;
 }
 
 
@@ -99,7 +108,18 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 
 void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
-
+    
     // TODO: Implement your solution here.
+    current_node = start_node;
+    current_node->visited = true;
+    open_list.push_back(current_node);
+    while (open_list.size() > 0) {
+        AddNeighbors(current_node);
+        current_node = NextNode();
+        if (current_node == end_node) {
+            m_Model.path = ConstructFinalPath(current_node);
+            return;
+        }
+    }
 
 }
